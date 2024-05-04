@@ -20,23 +20,29 @@ r.flushdb()
 def job():
     # Verifique se há chaves no Redis
     keys = r.keys()
+    try:
+        if keys:
+            # Recupere todos os arquivos JSON
+            for key in keys: 
+                files = json.loads((r.get(key).decode('utf-8')))
+            print(files)
+          
+            headers = {'Content-Type': 'application/json'}
+            url = 'http://localhost:3001/recepcao'
+            response = requests.post(url, headers=headers, data=files)
 
-    if keys:
-        # Recupere todos os arquivos JSON
-        files = [json.loads(r.get(key)) for key in keys]
-        print(files)
-
-        # Envie os arquivos para a rota especificada
-        response = requests.post('http://localhost:3001/recepcao', json=files)
-
-        # Se a resposta for bem-sucedida, exclua as chaves do Redis
-        if response.status_code == 200:
-            for key in keys:
-                r.delete(key)
+            # Se a resposta for bem-sucedida, exclua as chaves do Redis
+            if response.status_code == 200:
+                for key in keys:
+                    r.delete(key)
+            else:
+                print('Falha ao enviar arquivos, tentando novamente...')
+                print(response.status_code)
+                print(response.text)
         else:
-            print('Falha ao enviar arquivos, tentando novamente...')
-    else:
-        print('Não há dados para enviar')
+            print('Não há dados para enviar')
+    except Exception as e:
+        print(f'Erro: {e}')
 
 # Agende o trabalho para ser executado a cada 10 segundos
 schedule.every(10).seconds.do(job)
