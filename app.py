@@ -33,7 +33,7 @@ def job():
 
                     # Enviar os dados para o servidor HTTP
                     headers = {'Content-Type': 'application/json'}
-                    url = 'http://localhost:3001/recepcao'
+                    url = 'http://host.docker.internal:3001/recepcao'
                     response = requests.post(url, headers=headers, json=files)
 
                     # Verificar resposta do servidor HTTP
