@@ -18,29 +18,35 @@ r = conectar()
 r.flushdb()
 
 def job():
-    # Verifique se há chaves no Redis
-    keys = r.keys()
     try:
+        # Verifique se há chaves no Redis
+        keys = r.keys()
         if keys:
-            # Recupere todos os arquivos JSON
-            for key in keys: 
-                files = json.loads((r.get(key).decode('utf-8')))
-            print(files)
-          
-            headers = {'Content-Type': 'application/json'}
-            url = 'http://localhost:3001/recepcao'
-            response = requests.post(url, headers=headers, data=files)
+            for key in keys:
+                # Recupere os dados em JSON do Redis
+                json_data = r.get(key)
+                if json_data:
+                    files = json_data.decode("utf-8").replace("'", '"').strip('"')
+                    files = json.loads(files)
+                    print("Dados recuperados do Redis:")
+                    print(files)
 
-            # Se a resposta for bem-sucedida, exclua as chaves do Redis
-            if response.status_code == 200:
-                for key in keys:
-                    r.delete(key)
-            else:
-                print('Falha ao enviar arquivos, tentando novamente...')
-                print(response.status_code)
-                print(response.text)
+                    # Enviar os dados para o servidor HTTP
+                    headers = {'Content-Type': 'application/json'}
+                    url = 'http://localhost:3001/recepcao'
+                    response = requests.post(url, headers=headers, json=files)
+
+                    # Verificar resposta do servidor HTTP
+                    if response.status_code == 200:
+                        print('Dados enviados com sucesso.')
+                        # Se a resposta for bem-sucedida, exclua a chave do Redis
+                        r.delete(key)
+                    else:
+                        print('Falha ao enviar dados para o servidor.')
+                        print(response.status_code)
+                        print(response.text)
         else:
-            print('Não há dados para enviar')
+            print('Não há dados para enviar.')
     except Exception as e:
         print(f'Erro: {e}')
 
