@@ -26,7 +26,7 @@ def job():
                 # Recupere os dados em JSON do Redis
                 json_data = r.get(key)
                 if json_data:
-                    files = json_data.decode("utf-8").replace("'", '"').strip('"')
+                    files = json_data.decode("utf-8")
                     files = json.loads(files)
                     print("Dados recuperados do Redis:")
                     print(files)
