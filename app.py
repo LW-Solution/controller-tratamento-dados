@@ -26,14 +26,14 @@ def job():
                 # Recupere os dados em JSON do Redis
                 json_data = r.get(key)
                 if json_data:
-                    files = json_data.decode("utf-8").replace("'", '"').strip('"')
+                    files = json_data.decode("utf-8")
                     files = json.loads(files)
                     print("Dados recuperados do Redis:")
                     print(files)
 
                     # Enviar os dados para o servidor HTTP
                     headers = {'Content-Type': 'application/json'}
-                    url = 'http://localhost:3001/recepcao'
+                    url = 'http://host.docker.internal:3001/recepcao'
                     response = requests.post(url, headers=headers, json=files)
 
                     # Verificar resposta do servidor HTTP
