@@ -15,6 +15,8 @@ class TestApp(unittest.TestCase):
         conexaoComBanco = conectar()
         self.assertIsInstance(conexaoComBanco, redis.Redis)
         self.assertTrue(conexaoComBanco.ping(), "Teste de conexao falhou")
+        print("Teste de conexao")
 
-if __name__ == '__main__':
+
+if __name__ == '__main__ ':
     unittest.main
